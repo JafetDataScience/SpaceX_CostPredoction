@@ -1,4 +1,4 @@
-# SpaceX_CostPredoction
+# SpaceX_CostPrediction
 ##editing the file
 
 Its a markdown file in this repository
