@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 app = dash.Dash(__name__)
-server = app.server
+
 app.layout = html.Div([
     html.H1("SpaceX landing prediction"),
 
@@ -223,9 +223,9 @@ def predict_landing(flight_number, payload_mass, flights, block, reused_count, o
     probability= model.predict_proba(New_data)
     
     if prediction == 1:
-           return "A Successful landing of the first stage is predicted with a probability "+str(100*round(probability[0,1],2))+"%"
+           return "A Successful landing of the first stage is predicted with a probability of "+str(100*round(probability[0,1],2))+"%"
     else:
-            return "An Unsuccessful landing of the first stage is predicted with a probability of"+str(100*round(probability[0,1],2))+"%"
+            return "An Unsuccessful landing of the first stage is predicted with a probability of "+str(100*round(probability[0,1],2))+"%"
 
 if __name__ == '__main__':
     app.run_server(debug=True)
