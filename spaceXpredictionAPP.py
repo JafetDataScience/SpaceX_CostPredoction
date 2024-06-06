@@ -225,7 +225,7 @@ def predict_landing(flight_number, payload_mass, flights, block, reused_count, o
     if prediction == 1:
            return "A Successful landing of the first stage is predicted with a probability of "+str(100*round(probability[0,1],2))+"%"
     else:
-            return "An Unsuccessful landing of the first stage is predicted with a probability of "+str(100*round(probability[0,1],2))+"%"
+            return "An Unsuccessful landing of the first stage is predicted with a probability of "+str(100*round(probability[0,0],2))+"%"
 
 if __name__ == '__main__':
     app.run_server(debug=True)
