@@ -3,7 +3,7 @@ dash
 matplotlib
 pandas
 plotly
-scikit-learn
+scikit-learn == 1.2.2
 numpy
 seaborn
 joblib
