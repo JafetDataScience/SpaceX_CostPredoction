@@ -110,6 +110,7 @@ def predict_price(inputs):
 # Definir la callback para la predicción
 @app.callback(
     Output("prediction-output", "children"),
+    Input("predict-button", "n_clicks"),
     State("cpu-frequency", "value"),
     State("category", "value"),
     State("gpu", "value"),
@@ -120,7 +121,7 @@ def predict_price(inputs):
     State("manufacturer", "value"),
     State("Screen_type", "value")
 )
-def update_prediction(cpu_freq, category, gpu, os, cpu_core, ram_gb, storage_gb, manufacturer, Screen_type):
+def update_prediction(n_cliks, cpu_freq, category, gpu, os, cpu_core, ram_gb, storage_gb, manufacturer, Screen_type):
     inputs = [cpu_freq, category, gpu, os, cpu_core, ram_gb, storage_gb, manufacturer, Screen_type]
     prediction = round(predict_price(inputs),2)
     return f"The predicted price for the laptop is: {prediction}"
