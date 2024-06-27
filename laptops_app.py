@@ -88,14 +88,13 @@ def predict_price(inputs):
         if inputs[-2] == i[1]:
             Manufacturers_0 = np.zeros(len(Manufacturers))
             Manufacturers_0[i[0]] = 1
-            print("hola")
             if inputs[-1] == 'Full HD':           
                 inputs_1 = np.concatenate((np.array(inputs[0:-2]),Manufacturers_0,np.array([1,0])))
             elif inputs[-1] == 'IPS panel':           
                 inputs_1 = np.concatenate((np.array(inputs[0:-2]),Manufacturers_0,np.array([0,1])))
     # Esta función debería utilizar el modelo entrenado para realizar una predicción basada en las entradas
     # Aquí simplemente devolvemos un valor ficticio
-    print(inputs_1)
+#    print(inputs_1)
     df = pd.DataFrame([inputs_1], columns = ['Category', 'GPU', 'OS', 'CPU_core',
        'CPU_frequency', 'RAM_GB', 'Storage_GB_SSD',
        'Screen-Full_HD', 'Screen-IPS_panel', 'Manufacturer_Acer',
@@ -104,9 +103,9 @@ def predict_price(inputs):
        'Manufacturer_Razer', 'Manufacturer_Samsung', 'Manufacturer_Toshiba',
        'Manufacturer_Xiaomi'])
     New_data = scaler.transform(df)
-    prediction = model.predict(New_data)
-    print(prediction,type(prediction))
-    return prediction[0]
+    predict = model.predict(New_data)
+#    print(prediction,type(prediction))
+    return predict[0]
 
 # Definir la callback para la predicción
 @app.callback(
@@ -122,12 +121,10 @@ def predict_price(inputs):
     State("manufacturer", "value"),
     State("Screen_type", "value")
 )
-def update_prediction(n_clicks, cpu_freq, category, gpu, os, cpu_core, ram_gb, storage_gb, manufacturer, Screen_type):
-    if n_clicks:
-        inputs = [cpu_freq, category, gpu, os, cpu_core, ram_gb, storage_gb, manufacturer, Screen_type]
-        prediction = predict_price(inputs)
-        return f"The predicted price for the laptop is: ${prediction:.2f}"
-    return ""
+def update_prediction(cpu_freq, category, gpu, os, cpu_core, ram_gb, storage_gb, manufacturer, Screen_type):
+    inputs = [cpu_freq, category, gpu, os, cpu_core, ram_gb, storage_gb, manufacturer, Screen_type]
+    prediction = round(predict_price(inputs),2)
+    return f"The predicted price for the laptop is: {prediction}"
 
 # Ejecutar la aplicación
 if __name__ == "__main__":
