@@ -110,7 +110,6 @@ def predict_price(inputs):
 # Definir la callback para la predicción
 @app.callback(
     Output("prediction-output", "children"),
-    Input("predict-button", "n_clicks"),
     State("cpu-frequency", "value"),
     State("category", "value"),
     State("gpu", "value"),
