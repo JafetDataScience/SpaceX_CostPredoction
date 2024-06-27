@@ -4,7 +4,6 @@ matplotlib
 pandas
 plotly
 scikit-learn == 1.2.2
-numpy
 seaborn
 joblib
 dash_bootstrap_components
