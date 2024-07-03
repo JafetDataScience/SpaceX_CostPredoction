@@ -1,4 +1,5 @@
 gunicorn
+sklearn
 dash
 pandas
 joblib
