@@ -2,4 +2,5 @@ gunicorn
 dash
 pandas
 scikit-learn == 1.2.2
+numpy == 1.25.2
 joblib
