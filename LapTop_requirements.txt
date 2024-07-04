@@ -1,5 +1,5 @@
-gunicorn
-scikit-learn == 1.2.2
+gunicorn 
 dash
 pandas
+scikit-learn == 1.2.2
 joblib
