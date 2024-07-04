@@ -14,12 +14,12 @@ def predict_price(inputs):
     Screens = ['Full HD', 'IPS panel']
     
     for i in enumerate(Manufacturers):
-        if inputs[-2] == i[1]:
+        if inputs[-1] == i[1]:
             Manufacturers_0 = np.zeros(len(Manufacturers))
             Manufacturers_0[i[0]] = 1
-            if inputs[-1] == 'Full HD':           
+            if inputs[-2] == 'Full HD':           
                 inputs_1 = np.concatenate((np.array(inputs[0:-2]), np.array([1, 0]), Manufacturers_0))
-            elif inputs[-1] == 'IPS panel':           
+            elif inputs[-2] == 'IPS panel':           
                 inputs_1 = np.concatenate((np.array(inputs[0:-2]), np.array([0, 1]), Manufacturers_0))
 
     df = pd.DataFrame([inputs_1], columns=[
