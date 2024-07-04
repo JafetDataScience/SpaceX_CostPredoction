@@ -41,7 +41,7 @@ def predict_price(inputs):
     return prediction[0]
 
 app = dash.Dash(__name__)
-
+server = app.server
 app.layout = html.Div([
     html.H1("Laptop Price Prediction", style={'text-align': 'center'}),
     html.Div([
