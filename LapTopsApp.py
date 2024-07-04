@@ -20,27 +20,35 @@ def predict_price(inputs):
             Manufacturers_0 = np.zeros(len(Manufacturers))
             Manufacturers_0[i[0]] = 1
             if inputs[-1] == 'Full HD':           
-                inputs_1 = np.concatenate((np.array(inputs[0:-2]),Manufacturers_0,np.array([1,0])))
+                inputs_1 = np.concatenate((np.array(inputs[0:-2]),np.array([1,0]),Manufacturers_0))
             elif inputs[-1] == 'IPS panel':           
-                inputs_1 = np.concatenate((np.array(inputs[0:-2]),Manufacturers_0,np.array([0,1])))
+                inputs_1 = np.concatenate((np.array(inputs[0:-2]),np.array([0,1]),Manufacturers_0))
     # Esta función debería utilizar el modelo entrenado para realizar una predicción basada en las entradas
     # Aquí simplemente devolvemos un valor ficticio
 #    print(inputs_1)
     df = pd.DataFrame([inputs_1],columns = ['Category', 'GPU', 'OS', 'CPU_core',
-       'CPU_frequency', 'RAM_GB', 'Storage_GB_SSD','Screen-Full_HD', 'Screen-IPS_panel', 'Manufacturer_Acer',
-       'Manufacturer_Asus', 'Manufacturer_Dell', 'Manufacturer_HP','Manufacturer_Huawei', 'Manufacturer_Lenovo',
-       'Manufacturer_MSI', 'Manufacturer_Razer', 'Manufacturer_Samsung', 'Manufacturer_Toshiba','Manufacturer_Xiaomi'])
+       'CPU_frequency', 'RAM_GB', 'Storage_GB_SSD','Screen-Full_HD', 'Screen-IPS_panel', 'Manufacturer_Acer','Manufacturer_Asus',
+       'Manufacturer_Dell', 'Manufacturer_HP','Manufacturer_Huawei', 'Manufacturer_Lenovo',
+       'Manufacturer_MSI', 'Manufacturer_Razer', 'Manufacturer_Samsung', 'Manufacturer_Toshiba',
+       'Manufacturer_Xiaomi'])
     New_data = scaler.transform(df)
-    prediction = model.predict(New_data)
+#    print(New_data)
+    df = pd.DataFrame([New_data[0]],columns = ['Category', 'GPU', 'OS', 'CPU_core',
+       'CPU_frequency', 'RAM_GB', 'Storage_GB_SSD','Screen-Full_HD', 'Screen-IPS_panel', 'Manufacturer_Acer','Manufacturer_Asus',
+       'Manufacturer_Dell', 'Manufacturer_HP','Manufacturer_Huawei', 'Manufacturer_Lenovo',
+       'Manufacturer_MSI', 'Manufacturer_Razer', 'Manufacturer_Samsung', 'Manufacturer_Toshiba',
+       'Manufacturer_Xiaomi'])
+ #   print(df)
+    prediction = model.predict(df)
     return prediction[0]
 
 app = dash.Dash(__name__)
-server = app.server
+
 app.layout = html.Div([
     html.H1("Laptop Price Prediction"),
     html.Div([
         html.Label("CPU Frequency (GHz)"),
-        dcc.Input(id='cpu-frequency', type='number', step=0.1),
+        dcc.Input(id='cpu-frequency', type='number'),
         
         html.Label("Category"),
         dcc.Dropdown(id='category', options=[
@@ -101,7 +109,7 @@ app.layout = html.Div([
 )
 def update_prediction(n_clicks, cpu_frequency, category, gpu, os, cpu_core, ram_gb, storage_gb, manufacturer, screen_type):
     if n_clicks > 0:
-        inputs = [cpu_frequency, category, gpu, os, cpu_core, ram_gb, storage_gb, manufacturer, screen_type]
+        inputs = [category, gpu, os, cpu_core, cpu_frequency, ram_gb, storage_gb, screen_type, manufacturer]
         # Converting categorical variables to numeric values (dummy encoding for simplicity)
         inputs_encoded = [cpu_frequency, category, gpu, os, cpu_core, ram_gb, storage_gb, manufacturer, screen_type]
         prediction = predict_price(inputs_encoded)
