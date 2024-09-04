@@ -51,7 +51,7 @@ def Universe_R_DataFrame(H_0,Wm,Wr,Wv):
 
     #Ahora se resuelve la ec por método de euler
     t_f     = 40.0 #tiempo final en Gyears 
-    dx      = 4e-3 #mil puntos en la integral
+    dx      = 4e-4 #mil puntos en la integral
     dot_R_0 = Rp(R_0)
     t       = np.arange(t_0,t_f,dx)
     tdis    =t_f
