@@ -19,30 +19,29 @@ app.config.suppress_callback_exceptions = True
 #Layout Section of Dash
 #Task 1 Add the Title to the Dashboard
 app.layout = html.Div(children=[html.H1('Universo tipo Fridman-Lemetre',
-                                style={'textAlign': 'center', 'color': '#FFFFFF',
-                                'font-size': 26}),
+                                style={'color': '#FFFFFF','font-size': 30}),
 # TASK 2: Add the radio items and a dropdown right below the first inner division
      #outer division starts
      html.Div([
                    # First inner divsion for  adding dropdown helper text for Selected Drive wheels
                     html.Div([
                             html.H2("Hubble constant [km/Mpc*s]",
-                            style={'textAlign': 'center', 'color': '#FFFFFF','font-size': 26}),
+                            style={'color': '#FFFFFF','font-size': 22}),
                         dcc.Input(placeholder=69.60, value = 69.60, id="H_0")]),
  
                     html.Div([
                             html.H2('Relativistic particles',
-                            style={'textAlign': 'center', 'color': '#FFFFFF','font-size': 26}),
+                            style={'color': '#FFFFFF','font-size': 22}),
                         dcc.Input(placeholder=1e-16, value=1e-16, id="Wr")]),
 
                     html.Div([
                             html.H2('Barionic matter',
-                            style={'textAlign': 'center', 'color': '#FFFFFF', 'font-size': 26}),
+                            style={'color': '#FFFFFF', 'font-size': 22}),
                         dcc.Input(placeholder=0.28,value=0.28, id="Wm")]),
 
                     html.Div([
                             html.H2('Dark energy',
-                            style={'textAlign': 'center', 'color': '#FFFFFF','font-size': 26}),
+                            style={'color': '#FFFFFF','font-size': 22}),
                         dcc.Input(placeholder=1-0.28-1e-16,value=1-0.28-1e-16, id="Wv")]),
                     html.Br(),
                     dbc.Button("Submit", id = "submit_button", color = "primary"),
