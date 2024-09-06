@@ -30,13 +30,13 @@ def Universe_R_DataFrame(H_0,Wm,Wr,Wv):
 
     if Wk <0 :
         k = -1
-        print("signo de curvatura 1, curvatura positiva (espacio esférico, cerrado)")
+        #print("signo de curvatura 1, curvatura positiva (espacio esférico, cerrado)")
     elif Wk ==0:
         k = 0
-        print("signo de curvatura 0, curvatura cero (espacio plano,abierto)")
+        #print("signo de curvatura 0, curvatura cero (espacio plano,abierto)")
     else:
         k = 1
-        print("signo de curvatura -1, curvatura negativa (espacio hiperbólico, abierto)")
+        ##print("signo de curvatura -1, curvatura negativa (espacio hiperbólico, abierto)")
 
 
         #condiciones iniciales
@@ -58,7 +58,7 @@ def Universe_R_DataFrame(H_0,Wm,Wr,Wv):
     tdis    =t_f
 
     for i in t :
-#        print(dx)
+#        #print(dx)
         if i<tdis:
             y = Rp(R_0)*dx+R_0
             Rf.append(y)
@@ -66,16 +66,16 @@ def Universe_R_DataFrame(H_0,Wm,Wr,Wv):
             tf.append(i)
             if dis(R_0)<=(2e-7):
                 tdis =i
-                print("hola apertura",R_0,dis(R_0))
+                #print("hola apertura",R_0,dis(R_0))
         else:
             y = -Rp(R_0)*dx+R_0
             Rf.append(y)
             tf.append(i)
             R_0  = y
-            print(y)
+            #print(y)
             if y <= R_0p:
             	tdis =t_f
-            	print("hola cierre")
+            	#print("hola cierre")
 #        dx = 1e-3*(f(R_0)/dot_R_0)+1E-9
     Rf = np.array(Rf)
     tf = np.array(tf)
@@ -96,13 +96,13 @@ def Universe_Age(H_0,Wm,Wr,Wv):
 
     if Wk <0 :
         k = -1
-        print("signo de curvatura 1, curvatura positiva (espacio esférico, cerrado)")
+        #print("signo de curvatura 1, curvatura positiva (espacio esférico, cerrado)")
     elif Wk ==0:
         k = 0
-        print("signo de curvatura 0, curvatura cero (espacio plano,abierto)")
+        #print("signo de curvatura 0, curvatura cero (espacio plano,abierto)")
     else:
         k = 1
-        print("signo de curvatura -1, curvatura negativa (espacio hiperbólico, abierto)")
+        #print("signo de curvatura -1, curvatura negativa (espacio hiperbólico, abierto)")
 
     #valores en el presente
     suma_p = 0.0
