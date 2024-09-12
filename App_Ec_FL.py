@@ -18,7 +18,7 @@ app.config.suppress_callback_exceptions = True
 
 #Layout Section of Dash
 #Task 1 Add the Title to the Dashboard
-app.layout = html.Div(children=[html.H1('Universo tipo Fridman-Lemetre',
+app.layout = html.Div(children=[html.H1('Fridman-Lemetre universe',
                                 style={'color': '#FFFFFF','font-size': 30}),
 # TASK 2: Add the radio items and a dropdown right below the first inner division
      #outer division starts
@@ -75,10 +75,10 @@ def line(n_clicks,H_0,Wr,Wm,Wv):
     df_combined = pd.concat([df,present])
     #print(df_combined)
 
-    fig1 = px.scatter(df_combined, x="time", y="radi",color="type",title="Evolución del universo",labels={"time":"Time [Gy]","radi":"Normal scale factor R(t)"})
+    fig1 = px.scatter(df_combined, x="time", y="radi",color="type",title="Universe evolution",labels={"time":"Time [Gy]","radi":"Normal scale factor R(t)"})
     return fig1
   #fig1.scatter(present, x="x", y="y")
-  #fig1.ylabel("Factor de escala normalizado",fontsize = 20)
+  #fig1.ylabel("Normal scale factor",fontsize = 20)
 #  fig1.grid()
 if __name__ == '__main__':
     app.run_server()
