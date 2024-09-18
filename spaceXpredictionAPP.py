@@ -136,7 +136,7 @@ app.layout = html.Div([
 
 @app.callback(
     Output('output-container', 'children'),
-    [Input("submit-button", n_clicks)],
+    [Input("submit-button", "n_clicks")],
     [State(component_id='flight-number', component_property='value'),
      State(component_id='payload-mass', component_property='value'),
      State(component_id='flights', component_property='value'),
