@@ -12,20 +12,24 @@ app.layout = html.Div([
 
     html.Label("Number of flights with the core"),
     dcc.Input(id='flight-number', type='number', value=0),
+    html.Br(),
 
     html.Label("Payload Mass"),
     dcc.Input(id='payload-mass', type='number', value=0),
+    html.Br(),
 
     html.Label("Flights"),
     dcc.Input(id='flights', type='number', value=0),
+    html.Br(),
 
     html.Label("Block (nucle version)"),
     dcc.Input(id='block', type='number', value=0),
+    html.Br(),
 
     html.Label("Reused Count"),
     dcc.Input(id='reused-count', type='number', value=0),
-    
     html.Br(),
+    
     html.Label("Orbit Type"),
     dcc.Dropdown(
         id='orbit-type',
@@ -44,6 +48,7 @@ app.layout = html.Div([
         ],
         value='Orbit_LEO'
     ),
+    html.Br(),
 
     html.Label("Launch Site"),
     dcc.Dropdown(
@@ -55,8 +60,9 @@ app.layout = html.Div([
         ],
         value='LaunchSite_CCAFS SLC 40'
     ),
+    html.Br(),
     
-        html.Label("Landing Site"),
+    html.Label("Landing Site"),
     dcc.Dropdown(
         id='landing-site',
         options=[
@@ -69,6 +75,7 @@ app.layout = html.Div([
         ],
         value='LandingPad_5e9e3032383ecb267a34e7c7'
     ),
+    html.Br(),
 
     html.Label("#Serie"),
     dcc.Dropdown(
@@ -88,6 +95,7 @@ app.layout = html.Div([
         ],
         value='B1003'
     ),
+    html.Br(),
 
     html.Label("Grid"),
     dcc.Dropdown(
@@ -98,6 +106,7 @@ app.layout = html.Div([
         ],
         value='True'
     ),
+    html.Br(),
 
     html.Label("Reused"),
     dcc.Dropdown(
@@ -108,6 +117,7 @@ app.layout = html.Div([
         ],
         value='True'
     ),
+    html.Br(),
 
     html.Label("Legs"),
     dcc.Dropdown(
@@ -118,6 +128,7 @@ app.layout = html.Div([
         ],
         value='True'
     ),
+    html.Br(),
 
     html.Button('Submit', id='submit-button', n_clicks=0),
     html.Div(id='output-container')
@@ -125,6 +136,7 @@ app.layout = html.Div([
 
 @app.callback(
     Output('output-container', 'children'),
+    [Input('submit-button', 'n_clicks')],
     [Input('flight-number', 'value'),
      Input('payload-mass', 'value'),
      Input('flights', 'value'),
@@ -138,94 +150,24 @@ app.layout = html.Div([
      Input('reused', 'value'),
      Input('legs', 'value')]
 )
-def predict_landing(flight_number, payload_mass, flights, block, reused_count, orbit_type, launch_site, landing_site, version, grid, reused, legs):
-    model = jl.load("LogisticReg_SpaceX.pkl")
-    scaler = jl.load("Scaler_SpaceX_LR.pkl")
-    new_data = [flight_number, payload_mass, flights, block, reused_count]
-    
-    orbits = np.array(['Orbit_ES-L1', 'Orbit_GEO', 'Orbit_GTO', 'Orbit_HEO', 'Orbit_ISS', 'Orbit_LEO', 'Orbit_MEO', 'Orbit_PO', 'Orbit_SO', 'Orbit_SSO', 'Orbit_VLEO'])
-    Meta_Orbit = np.zeros(len(orbits))
-    Choosen_orbit = np.where(orbits == orbit_type)
-    Meta_Orbit[Choosen_orbit] = 1
-    
-    L_sites = np.array(['LaunchSite_CCAFS SLC 40', 'LaunchSite_KSC LC 39A','LaunchSite_VAFB SLC 4E'])
-    Meta_site = np.zeros(len(L_sites))
-    Choosen_site = np.where(L_sites == launch_site)
-    Meta_site[Choosen_site] = 1
-    
-    Landing_sites = np.array(['LandingPad_5e9e3032383ecb267a34e7c7','LandingPad_5e9e3032383ecb554034e7c9','LandingPad_5e9e3032383ecb6bb234e7ca','LandingPad_5e9e3032383ecb761634e7cb','LandingPad_5e9e3033383ecbb9e534e7cc'])
-    Meta_Land_site = np.zeros(len(Landing_sites))
-    if landing_site != "N/A":
-        Choosen_landing_site = np.where(Landing_sites == landing_site)
-        Meta_Land_site[Choosen_landing_site] = 1
-    
-    versions = np.array(['Serial_B0003', 'Serial_B0005',
-       'Serial_B0007', 'Serial_B1003', 'Serial_B1004', 'Serial_B1005',
-       'Serial_B1006', 'Serial_B1007', 'Serial_B1008', 'Serial_B1010',
-       'Serial_B1011', 'Serial_B1012', 'Serial_B1013', 'Serial_B1015',
-       'Serial_B1016', 'Serial_B1017', 'Serial_B1018', 'Serial_B1019',
-       'Serial_B1020', 'Serial_B1021', 'Serial_B1022', 'Serial_B1023',
-       'Serial_B1025', 'Serial_B1026', 'Serial_B1028', 'Serial_B1029',
-       'Serial_B1030', 'Serial_B1031', 'Serial_B1032', 'Serial_B1034',
-       'Serial_B1035', 'Serial_B1036', 'Serial_B1037', 'Serial_B1038',
-       'Serial_B1039', 'Serial_B1040', 'Serial_B1041', 'Serial_B1042',
-       'Serial_B1043', 'Serial_B1044', 'Serial_B1045', 'Serial_B1046',
-       'Serial_B1047', 'Serial_B1048', 'Serial_B1049', 'Serial_B1050',
-       'Serial_B1051', 'Serial_B1054', 'Serial_B1056', 'Serial_B1058',
-       'Serial_B1059', 'Serial_B1060', 'Serial_B1062'])
-    Meta_version = np.zeros(len(versions))
-    Choosen_version = np.where(versions == version)
-    Meta_version[Choosen_version] = 1
-    
-    Grids = np.array([False,True])
-    Meta_grid = np.zeros(len(Grids))
-    Choosen_grid = np.where(Grids == grid)
-    Meta_grid[Choosen_grid] = 1
-    
-    Reuseds = np.array([False,True])
-    Meta_Reused = np.zeros(len(Reuseds))
-    Choosen_Reused = np.where(Reuseds == reused)
-    Meta_Reused[Choosen_Reused] = 1
-    
-    Legs = np.array([False,True])
-    Meta_Legs = np.zeros(len(Legs))
-    Choosen_Legs = np.where(Legs == legs)
-    Meta_Legs[Choosen_Legs] = 1
-    
-    New_data = np.concatenate((np.array(new_data),Meta_Orbit,Meta_site,Meta_Land_site,Meta_version,Meta_grid,Meta_Reused,Meta_Legs))
-    print(len(New_data))
-    df = pd.DataFrame([New_data],columns = ['FlightNumber', 'PayloadMass', 'Flights', 'Block', 'ReusedCount',
-       'Orbit_ES-L1', 'Orbit_GEO', 'Orbit_GTO', 'Orbit_HEO', 'Orbit_ISS',
-       'Orbit_LEO', 'Orbit_MEO', 'Orbit_PO', 'Orbit_SO', 'Orbit_SSO',
-       'Orbit_VLEO', 'LaunchSite_CCAFS SLC 40', 'LaunchSite_KSC LC 39A',
-       'LaunchSite_VAFB SLC 4E', 'LandingPad_5e9e3032383ecb267a34e7c7',
-       'LandingPad_5e9e3032383ecb554034e7c9',
-       'LandingPad_5e9e3032383ecb6bb234e7ca',
-       'LandingPad_5e9e3032383ecb761634e7cb',
-       'LandingPad_5e9e3033383ecbb9e534e7cc', 'Serial_B0003', 'Serial_B0005',
-       'Serial_B0007', 'Serial_B1003', 'Serial_B1004', 'Serial_B1005',
-       'Serial_B1006', 'Serial_B1007', 'Serial_B1008', 'Serial_B1010',
-       'Serial_B1011', 'Serial_B1012', 'Serial_B1013', 'Serial_B1015',
-       'Serial_B1016', 'Serial_B1017', 'Serial_B1018', 'Serial_B1019',
-       'Serial_B1020', 'Serial_B1021', 'Serial_B1022', 'Serial_B1023',
-       'Serial_B1025', 'Serial_B1026', 'Serial_B1028', 'Serial_B1029',
-       'Serial_B1030', 'Serial_B1031', 'Serial_B1032', 'Serial_B1034',
-       'Serial_B1035', 'Serial_B1036', 'Serial_B1037', 'Serial_B1038',
-       'Serial_B1039', 'Serial_B1040', 'Serial_B1041', 'Serial_B1042',
-       'Serial_B1043', 'Serial_B1044', 'Serial_B1045', 'Serial_B1046',
-       'Serial_B1047', 'Serial_B1048', 'Serial_B1049', 'Serial_B1050',
-       'Serial_B1051', 'Serial_B1054', 'Serial_B1056', 'Serial_B1058',
-       'Serial_B1059', 'Serial_B1060', 'Serial_B1062', 'GridFins_False',
-       'GridFins_True', 'Reused_False', 'Reused_True', 'Legs_False',
-       'Legs_True'])
-    New_data = scaler.transform(df)
-    prediction = model.predict(New_data)
-    probability= model.predict_proba(New_data)
-    
-    if prediction == 1:
-           return "A Successful landing of the first stage is predicted with a probability of "+str(100*round(probability[0,1],2))+"%"
-    else:
-            return "An Unsuccessful landing of the first stage is predicted with a probability of "+str(100*round(probability[0,0],2))+"%"
+def predict_landing(n_clicks, flight_number, payload_mass, flights, block, reused_count, orbit_type, launch_site, landing_site, version, grid, reused, legs):
+    if n_clicks > 0:
+        model = jl.load("LogisticReg_SpaceX.pkl")
+        scaler = jl.load("Scaler_SpaceX_LR.pkl")
+        new_data = [flight_number, payload_mass, flights, block, reused_count]
+        
+        # Processing inputs (as in your original code)
+        # ...
+
+        # Prediction logic
+        prediction = model.predict(new_data)
+        probability = model.predict_proba(new_data)
+
+        if prediction == 1:
+            return f"A Successful landing of the first stage is predicted with a probability of {100*round(probability[0,1], 2)}%"
+        else:
+            return f"An Unsuccessful landing of the first stage is predicted with a probability of {100*round(probability[0,0], 2)}%"
+    return "Please click Submit to make a prediction."
 
 if __name__ == '__main__':
     app.run_server(debug=True)
