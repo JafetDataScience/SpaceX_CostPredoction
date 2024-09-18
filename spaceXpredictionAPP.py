@@ -150,8 +150,8 @@ app.layout = html.Div([
      State(component_id='reused', component_property='value'),
      State(component_id='legs', component_property='value')]
 )
-def predict_landing(flight_number, payload_mass, flights, block, reused_count, orbit_type, launch_site, landing_site, version, grid, reused, legs):
-    if n_click == None:
+def predict_landing(n_clicks, flight_number, payload_mass, flights, block, reused_count, orbit_type, launch_site, landing_site, version, grid, reused, legs):
+    if n_clicks == None:
         return ""
     else:
         model = jl.load("LogisticReg_SpaceX.pkl")
