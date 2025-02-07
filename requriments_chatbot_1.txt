@@ -1,0 +1,9 @@
+pydantic
+langchain
+langchain-community
+gradio
+chromadb
+pypdf
+os
+requests
+transformers
