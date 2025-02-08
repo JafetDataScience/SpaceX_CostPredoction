@@ -10,4 +10,4 @@ transformers
 bs4
 fastapi
 uvicorn
-gunicorn
+python-multipart
