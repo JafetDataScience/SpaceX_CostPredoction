@@ -104,6 +104,11 @@ def retriever_qa(query, T=0.5, file=file_1):
     return answer
 
 #Render flask api
+
+@app.get("/")  
+def home():
+    return {"message": "FastAPI is running!"}
+
 @app.post("/query")
 async def query(request: Request):
     data = await request.json()
