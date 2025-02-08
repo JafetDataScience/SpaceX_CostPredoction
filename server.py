@@ -1,9 +1,9 @@
-
 #################################################################
 ##########################pip install fastapi uvicorn############
 #################################################################
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 import os
 import requests
 import uvicorn
@@ -19,6 +19,17 @@ from langchain.memory import ConversationBufferMemory
 
 
 app = FastAPI()
+
+############# ADDED CORS CONFIG###############
+app.add_middleware(
+    COROSMiddleware,
+    allow_origins=["*"], #allow all origns
+    allow_credentials=True,
+    allow_methods=["*"], # allow all methods
+    allow_headers=["*"] # allow all headers
+    
+)
+###########################
 
 API_URL = "https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1"
 HEADERS = {"Authorization": f"Bearer {os.getenv('HF_TOKEN')}"}
