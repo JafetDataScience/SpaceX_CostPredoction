@@ -1,0 +1,12 @@
+pydantic
+langchain
+langchain-community
+sentence-transformers
+gradio
+chromadb
+pypdf
+requests
+transformers
+bs4
+fastapi
+uvicorn
