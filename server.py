@@ -10,14 +10,14 @@ import uvicorn
 from langchain_community.document_loaders import PyPDFLoader, WebBaseLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.memory import ConversationBufferMemory
 
 #from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 #from langchain.chains import RetrievalQA
 #import gradio as gr
 
-
+os.environ["USER_AGENT"] = "MyFastAPIApp/1.0 (contact@yourdomain.com)"
 app = FastAPI()
 
 ############# ADDED CORS CONFIG###############
@@ -102,7 +102,7 @@ def retriever(file):
 
 # QA Chain
 
-memory = ConversationBufferMemory(input_key="query", memory_key="history")
+memory = ConversationBufferMemory(input_key="query", memory_key="history", return_messages=True)
 def retriever_qa(query, T=0.5, file=file_1):
     #retriever_obj =
     retrieved_docs = retriever(file).invoke(query)
@@ -119,6 +119,10 @@ def retriever_qa(query, T=0.5, file=file_1):
 @app.get("/")  
 def home():
     return {"message": "FastAPI is running!"}
+
+@app.head("/") # add HEAD Handler
+async def head_root():
+    return {"message":"HEAD request handled"}
 
 @app.post("/query")
 async def query(request: Request):
