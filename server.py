@@ -124,7 +124,7 @@ def home():
 async def head_root():
     return {"message":"HEAD request handled"}
 
-@app.post("/query")
+@app.get("/query")
 async def query(request: Request):
     data = await request.json()
     user_input = data["question"]
