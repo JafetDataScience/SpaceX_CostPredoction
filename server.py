@@ -102,7 +102,7 @@ def retriever(file):
 
 # QA Chain
 
-memory = ConversationBufferMemory(input_key="query", memory_key="history", return_messages=True)
+memory = ConversationBufferMemory(return_messages=True)
 def retriever_qa(query, T=0.5, file=file_1):
     #retriever_obj =
     retrieved_docs = retriever(file).invoke(query)
