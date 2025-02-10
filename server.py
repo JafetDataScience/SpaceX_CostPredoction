@@ -112,7 +112,7 @@ def retriever_qa(query, T=0.5, file=file_1):
     response = get_llm(prompt,T)
     answer = response.split("Answer:")[-1].strip()  # Extract only the answer
     memory.save_context({"query":query},{"history":history+f"\nUser: {query}\n Bot: {answer}"})
-    return answer
+    return response
 
 #Render flask api
 
