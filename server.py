@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 import requests
 import uvicorn
+import nest_asyncio
 from langchain_community.document_loaders import PyPDFLoader, WebBaseLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
@@ -18,6 +19,7 @@ from langchain.memory import ConversationBufferMemory
 #import gradio as gr
 
 #os.environ["USER_AGENT"] = "MyFastAPIApp/1.0 (contact@yourdomain.com)"
+nest_asyncio.apply()
 app = FastAPI()
 
 ############# ADDED CORS CONFIG###############
@@ -107,22 +109,23 @@ def retriever_qa(query, T=0.5, file=file_1):
     #retriever_obj =
     retrieved_docs = retriever(file).invoke(query)
     context = "\n".join([doc.page_content for doc in retrieved_docs])
-    history = memory.load_memory_variables({}).get("history","")
-    prompt = f"History: {history}\n Context: {context}\nQuestion: {query}\nAnswer:"
+    history = memory.load_memory_variables({}).get("history",[])
+    prompt = f"History: {''.join(history)}\nContext: {context}\nQuestion: {query}\nAnswer:"
     response = get_llm(prompt,T)
     answer = response.split("Answer:")[-1].strip()  # Extract only the answer
-    memory.save_context({"query":query},{"history":history+f"\nUser: {query}\n Bot: {answer}"})
-    return response
-
+    conversation = f"\nUser: {query}\nBot: {answer}"
+    history.append(conversation)
+    memory.save_context({"query":query},{"history":history})
+    return answer
 #Render flask api
 
 @app.get("/")  
 def home():
     return {"message": "FastAPI is running!"}
 
-@app.head("/") # add HEAD Handler
-async def head_root():
-    return {"message":"HEAD request handled"}
+#@app.head("/") # add HEAD Handler
+#async def head_root():
+#    return {"message":"HEAD request handled"}
 
 @app.post("/query")
 async def query(request: Request):
@@ -132,8 +135,9 @@ async def query(request: Request):
     return {"response": response}
 
 if __name__ == "__main__":
-    port =  int(os.environ.get("PORT", 8000))  # Use Render's assigned port
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    config = uvicorn.Config(app, port=7860, host="0.0.0.0")
+    server = uvicorn.Server(config)
+    server.run()
 # Create a Gradio interface
 #rag_application = gr.Interface(
 #    fn=retriever_qa,
