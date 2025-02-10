@@ -17,7 +17,7 @@ from langchain.memory import ConversationBufferMemory
 #from langchain.chains import RetrievalQA
 #import gradio as gr
 
-os.environ["USER_AGENT"] = "MyFastAPIApp/1.0 (contact@yourdomain.com)"
+#os.environ["USER_AGENT"] = "MyFastAPIApp/1.0 (contact@yourdomain.com)"
 app = FastAPI()
 
 ############# ADDED CORS CONFIG###############
