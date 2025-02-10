@@ -11,3 +11,4 @@ bs4
 fastapi
 uvicorn
 python-multipart
+nest_asyncio
