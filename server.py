@@ -135,7 +135,8 @@ async def query(request: Request):
     return {"response": response}
 
 if __name__ == "__main__":
-    config = uvicorn.Config(app, port=7860, host="0.0.0.0")
+    port = int(os.environ.get("PORT", 8000))  # Use Render's assigned port
+    config = uvicorn.Config(app, port=port, host="0.0.0.0")
     server = uvicorn.Server(config)
     server.run()
 # Create a Gradio interface
