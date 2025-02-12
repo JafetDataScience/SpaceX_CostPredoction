@@ -1,7 +1,3 @@
-#################################################################
-##########################pip install fastapi uvicorn############
-#################################################################
-
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import os
@@ -17,9 +13,8 @@ from langchain.memory import ConversationBufferMemory
 #from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 #from langchain.chains import RetrievalQA
 #import gradio as gr
-
-#os.environ["USER_AGENT"] = "MyFastAPIApp/1.0 (contact@yourdomain.com)"
 nest_asyncio.apply()
+#os.environ["USER_AGENT"] = "MyFastAPIApp/1.0 (contact@yourdomain.com)"
 app = FastAPI()
 
 ############# ADDED CORS CONFIG###############
@@ -29,7 +24,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"], # allow all methods
     allow_headers=["*"] # allow all headers
-    
+
 )
 ###########################
 
@@ -44,8 +39,8 @@ file_1 = [
     "https://portfolio-showcase-789.framer.ai/Laptops",
     "https://portfolio-showcase-789.framer.ai/rainoccurance",
     "https://portfolio-showcase-789.framer.ai/universeexpanssion",
-    "FL_solution_ecuation.pdf",
     "Newsletter_Economy_1.pdf",
+    "FL_solution_ecuation.pdf",
     "resume_QTRO_JILS.pdf"
     ]
 
@@ -110,24 +105,33 @@ def retriever_qa(query, T=0.5, file=file_1):
     retrieved_docs = retriever(file).invoke(query)
     context = "\n".join([doc.page_content for doc in retrieved_docs])
     history = memory.load_memory_variables({}).get("history",[])
+
+    # Make sure history is a list and append the conversation as a new item in the list
     prompt = f"History: {''.join(history)}\nContext: {context}\nQuestion: {query}\nAnswer:"
-    response = get_llm(prompt,T)
+    response = get_llm(prompt, T)
     answer = response.split("Answer:")[-1].strip()  # Extract only the answer
     conversation = f"\nUser: {query}\nBot: {answer}"
     history.append(conversation)
     memory.save_context({"query":query},{"history":history})
     return answer
+
 #Render flask api
 
-@app.get("/")  
-def home():
-    return {"message": "FastAPI is running!"}
+#@app.get("/")
+#def home():
+#    return {"message": "FastAPI is running!"}
 
 #@app.head("/") # add HEAD Handler
 #async def head_root():
 #    return {"message":"HEAD request handled"}
 
-@app.post("/query")
+#@app.post("/query")
+#async def query(request: Request):
+#    data = await request.json()
+#    user_input = data["question"]
+#    response = retriever_qa(user_input)
+#    return {"response": response}
+@app.get("/")
 async def query(request: Request):
     data = await request.json()
     user_input = data["question"]
@@ -135,22 +139,7 @@ async def query(request: Request):
     return {"response": response}
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))  # Use Render's assigned port
-    config = uvicorn.Config(app, port=port, host="0.0.0.0")
+    #uvicorn.run(app, host="0.0.0.0", port=7860)
+    config = uvicorn.Config(app, port=7860, host="0.0.0.0")
     server = uvicorn.Server(config)
     server.run()
-# Create a Gradio interface
-#rag_application = gr.Interface(
-#    fn=retriever_qa,
-#    allow_flagging='never',
-#    inputs=[
-#        gr.Textbox(label='Input query', lines=2, placeholder='Type your question here...'),
-#        gr.Slider(0.1, 1.0, value=0.5, step=0.1, label='Temperature')
-#    ],
-#    outputs=gr.Textbox(label='Output'),
-#    title='RAG Chatbot with Hugging Face API',
-#    description='Upload a PDF document and ask any question. The chatbot will try to answer using the provided document.'
-#)
-
-# Launch the app
-#rag_application.launch(server_name='0.0.0.0', server_port=7860, debug=True)
