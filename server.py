@@ -117,26 +117,26 @@ def retriever_qa(query, T=0.5, file=file_1):
 
 #Render flask api
 
-#@app.get("/")
-#def home():
-#    return {"message": "FastAPI is running!"}
+@app.get("/")
+def home():
+    return {"message": "FastAPI is running!"}
 
 #@app.head("/") # add HEAD Handler
 #async def head_root():
 #    return {"message":"HEAD request handled"}
 
-#@app.post("/query")
-#async def query(request: Request):
-#    data = await request.json()
-#    user_input = data["question"]
-#    response = retriever_qa(user_input)
-#    return {"response": response}
-@app.get("/")
+@app.post("/query")
 async def query(request: Request):
     data = await request.json()
     user_input = data["question"]
     response = retriever_qa(user_input)
     return {"response": response}
+#@app.get("/")
+#async def query(request: Request):
+#    data = await request.json()
+#    user_input = data["question"]
+#    response = retriever_qa(user_input)
+#    return {"response": response}
 
 if __name__ == "__main__":
     #uvicorn.run(app, host="0.0.0.0", port=7860)
