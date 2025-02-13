@@ -13,7 +13,7 @@ from langchain.memory import ConversationBufferMemory
 #from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 #from langchain.chains import RetrievalQA
 #import gradio as gr
-nest_asyncio.apply()
+#nest_asyncio.apply()
 #os.environ["USER_AGENT"] = "MyFastAPIApp/1.0 (contact@yourdomain.com)"
 app = FastAPI()
 
