@@ -101,18 +101,18 @@ def retriever(file):
 
 memory = ConversationBufferMemory(return_messages=True)
 def retriever_qa(query, T=0.5, file=file_1):
-    #retriever_obj =
     retrieved_docs = retriever(file).invoke(query)
     context = "\n".join([doc.page_content for doc in retrieved_docs])
     history = memory.load_memory_variables({}).get("history",[])
-
+    history_str = "\n".join([f"{msg.type.capitalize()}: {msg.content}" for msg in history])
     # Make sure history is a list and append the conversation as a new item in the list
-    prompt = f"History: {''.join(history)}\nContext: {context}\nQuestion: {query}\nAnswer:"
+    prompt = f"History: {history_str}\nContext: {context}\nQuestion: {query}\nAnswer:"
     response = get_llm(prompt, T)
     answer = response.split("Answer:")[-1].strip()  # Extract only the answer
-    conversation = f"\nUser: {query}\nBot: {answer}"
-    history.append(conversation)
-    memory.save_context({"query":query},{"history":history})
+     # Save messages properly
+    memory.chat_memory.add_user_message(query)
+    memory.chat_memory.add_ai_message(answer)
+
     return answer
 
 #Render flask api
