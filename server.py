@@ -136,6 +136,6 @@ async def query(request: Request):
 if __name__ == "__main__":
     #uvicorn.run(app, host="0.0.0.0", port=7860)
     port = int(os.environ.get("PORT", 8000))
-    config = uvicorn.Config(app, port=7860, host="0.0.0.0")
+    config = uvicorn.Config(app, port=port, host="0.0.0.0")
     server = uvicorn.Server(config)
     server.run()
