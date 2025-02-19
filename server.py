@@ -22,7 +22,7 @@ app.add_middleware(
 )
 ###########################
 
-API_URL = "https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1"
+API_URL = "https://api-inference.huggingface.co/models/mistralai/Mixtral-7B-Instruct-v0.2"
 HEADERS = {"Authorization": f"Bearer {os.getenv('HF_TOKEN')}"}
 
 #Generate data base
