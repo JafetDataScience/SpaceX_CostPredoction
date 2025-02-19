@@ -1,32 +1,34 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.concurrency import run_in_threadpool
 import os
 import requests
 import uvicorn
-#import nest_asyncio
+import logging
 from langchain_community.document_loaders import PyPDFLoader, WebBaseLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.memory import ConversationBufferMemory
 
+# Initialize logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 app = FastAPI()
 
-############# ADDED CORS CONFIG###############
+############# CORS CONFIG ###############
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], #allow all origns
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"], # allow all methods
-    allow_headers=["*"] # allow all headers
-
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
-###########################
 
-API_URL = "https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1"
+API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"  # Smaller model
 HEADERS = {"Authorization": f"Bearer {os.getenv('HF_TOKEN')}"}
 
-#Generate data base
+# Document paths
 file_1 = [
     "https://portfolio-showcase-789.framer.ai/",
     "https://portfolio-showcase-789.framer.ai/dataprojects",
@@ -34,37 +36,68 @@ file_1 = [
     "https://portfolio-showcase-789.framer.ai/Laptops",
     "https://portfolio-showcase-789.framer.ai/rainoccurance",
     "https://portfolio-showcase-789.framer.ai/universeexpanssion",
-    "Newsletter_Economy_1.pdf",
+    "Newsletter_Economy_1.pdf",  # Assuming PDFs are in documents folder
     "FL_solution_ecuation.pdf",
     "resume_QTRO_JILS.pdf"
-    ]
+]
 
-## LLM using Hugging Face API
+# Preprocess documents during startup
+@app.on_event("startup")
+async def initialize_services():
+    try:
+        logger.info("Starting document preprocessing...")
+        splits = document_loader(file_1)
+        chunks = text_splitter(splits)
+        app.state.vectordb = vector_database(chunks)
+        app.state.retriever = app.state.vectordb.as_retriever()
+        logger.info("Vector database initialized successfully")
+    except Exception as e:
+        logger.error(f"Initialization failed: {str(e)}")
+        raise
+
+## LLM with error handling
 def get_llm(prompt, T=0.5):
-    payload = {
-        "inputs": prompt,
-        "parameters": {
-        "max_new_tokens": 256,
-        "temperature":T,
-        "repetition_penalty":1.2,
-        "top_p":0.8 #Controls diversity of generated text
-          }
-      }
-    response = requests.post(API_URL, headers=HEADERS, json=payload)
-    output = response.json()
-    if isinstance(output, list):
-        return output[0].get("generated_text", "Error: No response from model")
-    return output.get("generated_text", "Error: No response from model")
+    try:
+        payload = {
+            "inputs": prompt,
+            "parameters": {
+                "max_new_tokens": 256,
+                "temperature": T,
+                "repetition_penalty": 1.2,
+                "top_p": 0.8
+            }
+        }
+        response = requests.post(API_URL, headers=HEADERS, json=payload, timeout=30)
+        
+        if response.status_code != 200:
+            logger.error(f"API Error: {response.text}")
+            return f"API Error: {response.text}"
+            
+        output = response.json()
+        if isinstance(output, list):
+            return output[0].get("generated_text", "Error: Unexpected response format")
+        return output.get("generated_text", "Error: No response from model")
+        
+    except Exception as e:
+        logger.error(f"LLM Exception: {str(e)}")
+        return f"Error: {str(e)}"
 
-## Document loader
+## Document loader with error handling
 def document_loader(files):
     documents = []
     for file_ in files:
-        if file_.startswith("https"):
-            loader = WebBaseLoader(file_)#
-        else:
-            loader = PyPDFLoader(file_)
-        documents.extend(loader.load())
+        try:
+            if file_.startswith("https"):
+                logger.info(f"Loading web content: {file_}")
+                loader = WebBaseLoader(file_)
+            else:
+                logger.info(f"Loading PDF: {file_}")
+                loader = PyPDFLoader(file_)
+            docs = loader.load()
+            documents.extend(docs)
+            logger.info(f"Loaded {len(docs)} documents from {file_}")
+        except Exception as e:
+            logger.error(f"Error loading {file_}: {str(e)}")
     return documents
 
 ## Text splitter
@@ -74,67 +107,59 @@ def text_splitter(data):
         chunk_overlap=100,
         length_function=len,
     )
-    chunks = text_splitter.split_documents(data)
-    return chunks
+    return text_splitter.split_documents(data)
 
 ## Vector database
 def vector_database(chunks):
     embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-    vectordb = Chroma.from_documents(chunks, embedding_model)
-    return vectordb
+    return Chroma.from_documents(chunks, embedding_model)
 
-## Retriever
-def retriever(file):
-    splits = document_loader(file)
-    chunks = text_splitter(splits)
-    vectordb = vector_database(chunks)
-    retriever = vectordb.as_retriever()
-    return retriever
-
-# QA Chain
-
+# QA Chain with memory
 memory = ConversationBufferMemory(input_key="query", memory_key="history")
-def retriever_qa(query, T=0.5, file=file_1):
-    #retriever_obj =
-    retrieved_docs = retriever(file).invoke(query)
-    context = "\n".join([doc.page_content for doc in retrieved_docs])
-    history = memory.load_memory_variables({}).get("history","")
+def retriever_qa(query, T=0.5):
+    try:
+        if not hasattr(app.state, 'retriever'):
+            return "System initialization incomplete"
+            
+        retrieved_docs = app.state.retriever.invoke(query)
+        context = "\n".join([doc.page_content for doc in retrieved_docs])
+        history = memory.load_memory_variables({}).get("history","")
 
-    # Make sure history is a list and append the conversation as a new item in the list
-    prompt = f"History: {history}\nContext: {context}\nQuestion: {query}\nAnswer:"
-    response = get_llm(prompt, T)
-    answer = response.split("Answer:")[-1].strip()  # Extract only the answer
-    #append the new conversation to the history
-    new_history = history + f"\nUser: {query}\n Bot: {answer}"
-    memory.save_context({"query":query},{"history":new_history})
-    return answer
+        prompt = f"History: {history}\nContext: {context}\nQuestion: {query}\nAnswer:"
+        response = get_llm(prompt, T)
+        answer = response.split("Answer:")[-1].strip()
+        
+        new_history = f"{history}\nUser: {query}\nBot: {answer}"
+        memory.save_context({"query": query}, {"history": new_history})
+        
+        return answer
+        
+    except Exception as e:
+        logger.error(f"QA Error: {str(e)}")
+        return f"Processing error: {str(e)}"
 
-#Render flask api
-
+# Endpoints
 @app.get("/")
-def home():
-    return {"message": "FastAPI is running!"}
-
-@app.head("/") # add HEAD Handler
-async def head_root():
-    return {"message":"HEAD request handled"}
+async def home():
+    return {"status": "online"}
 
 @app.post("/query")
 async def query(request: Request):
-    data = await request.json()
-    user_input = data["question"]
-    response = retriever_qa(user_input, T=0.4)
-    return {"response": response}
-#@app.get("/")
-#async def query(request: Request):
-#    data = await request.json()
-#    user_input = data["question"]
-#    response = retriever_qa(user_input)
-#    return {"response": response}
+    try:
+        data = await request.json()
+        user_input = data.get("question", "")
+        
+        if not user_input:
+            return {"error": "No question provided"}
+            
+        # Use thread pool for CPU-bound tasks
+        response = await run_in_threadpool(retriever_qa, user_input, 0.4)
+        return {"response": response}
+        
+    except Exception as e:
+        logger.error(f"Endpoint error: {str(e)}")
+        return {"error": str(e)}
 
 if __name__ == "__main__":
-    #uvicorn.run(app, host="0.0.0.0", port=7860)
     port = int(os.environ.get("PORT", 8000))
-    config = uvicorn.Config(app, port=port, host="0.0.0.0")
-    server = uvicorn.Server(config)
-    server.run()
+    uvicorn.run(app, host="0.0.0.0", port=port)
