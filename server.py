@@ -3,18 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 import requests
 import uvicorn
-import nest_asyncio
 from langchain_community.document_loaders import PyPDFLoader, WebBaseLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.memory import ConversationBufferMemory
 
-#from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
-#from langchain.chains import RetrievalQA
-#import gradio as gr
-#nest_asyncio.apply()
-#os.environ["USER_AGENT"] = "MyFastAPIApp/1.0 (contact@yourdomain.com)"
 app = FastAPI()
 
 ############# ADDED CORS CONFIG###############
@@ -99,20 +93,18 @@ def retriever(file):
 
 # QA Chain
 
-memory = ConversationBufferMemory(return_messages=True)
+memory = ConversationBufferMemory(input_key="query", memory_key="history")
 def retriever_qa(query, T=0.5, file=file_1):
     retrieved_docs = retriever(file).invoke(query)
     context = "\n".join([doc.page_content for doc in retrieved_docs])
-    history = memory.load_memory_variables({}).get("history",[])
-    history_str = "\n".join([f"{msg.type.capitalize()}: {msg.content}" for msg in history])
+    history = memory.load_memory_variables({}).get("history","")
     # Make sure history is a list and append the conversation as a new item in the list
     prompt = f"History: {history_str}\nContext: {context}\nQuestion: {query}\nAnswer:"
     response = get_llm(prompt, T)
     answer = response.split("Answer:")[-1].strip()  # Extract only the answer
-     # Save messages properly
-    memory.chat_memory.add_user_message(query)
-    memory.chat_memory.add_ai_message(answer)
-
+    #append the new conversation to the history
+    new_history = history + f"\nUser: {query}\n Bot: {answer}"
+    memory.save_context({"query":query},{"history":new_history})
     return answer
 
 #Render flask api
@@ -121,12 +113,12 @@ def retriever_qa(query, T=0.5, file=file_1):
 def home():
     return {"message": "FastAPI is running!"}
 
-@app.options("/query")
-async def options_query():
-    return {"Allow": "POST"}
-@app.head("/") # add HEAD Handler
-async def head_root():
-    return {"message":"HEAD request handled"}
+#@app.options("/query")
+#async def options_query():
+#    return {"Allow": "POST"}
+#@app.head("/") # add HEAD Handler
+#async def head_root():
+#    return {"message":"HEAD request handled"}
 
 @app.post("/query")
 async def query(request: Request):
@@ -144,6 +136,6 @@ async def query(request: Request):
 if __name__ == "__main__":
     #uvicorn.run(app, host="0.0.0.0", port=7860)
     port = int(os.environ.get("PORT", 8000))
-    config = uvicorn.Config(app, port=port, host="0.0.0.0")
+    config = uvicorn.Config(app, port=7860, host="0.0.0.0")
     server = uvicorn.Server(config)
     server.run()
