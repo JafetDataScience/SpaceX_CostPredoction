@@ -164,11 +164,6 @@ async def query(request: Request):
         return {"error": str(e)}
 
 if __name__ == "__main__":
-    uvicorn.run(
-        "server:app",
-        host=HOST,
-        port=PORT,
-        reload=False,
-        access_log=False,
-        timeout_keep_alive=60
-    )
+    config = uvicorn.Config(app, port=PORT, host=HOST)
+    server = uvicorn.Server(config)
+    server.run()
