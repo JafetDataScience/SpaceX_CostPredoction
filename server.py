@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 import requests
 import uvicorn
+#import nest_asyncio
 from langchain_community.document_loaders import PyPDFLoader, WebBaseLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
@@ -22,7 +23,7 @@ app.add_middleware(
 )
 ###########################
 
-API_URL = "https://api-inference.huggingface.co/models/mistralai/Mixtral-7B-Instruct-v0.2"
+API_URL = "https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1"
 HEADERS = {"Authorization": f"Bearer {os.getenv('HF_TOKEN')}"}
 
 #Generate data base
@@ -35,7 +36,7 @@ file_1 = [
     "https://portfolio-showcase-789.framer.ai/universeexpanssion",
     "Newsletter_Economy_1.pdf",
     "FL_solution_ecuation.pdf",
-    "resume_QTRO_JILS.pdf"
+    "resume.pdf"
     ]
 
 ## LLM using Hugging Face API
@@ -46,7 +47,7 @@ def get_llm(prompt, T=0.5):
         "max_new_tokens": 256,
         "temperature":T,
         "repetition_penalty":1.2,
-        "top_p":0.9 #Controls diversity of generated text
+        "top_p":0.8 #Controls diversity of generated text
           }
       }
     response = requests.post(API_URL, headers=HEADERS, json=payload)
@@ -56,7 +57,6 @@ def get_llm(prompt, T=0.5):
     return output.get("generated_text", "Error: No response from model")
 
 ## Document loader
-#file_1 = "FL_solution_ecuation.pdf"
 def document_loader(files):
     documents = []
     for file_ in files:
@@ -95,11 +95,13 @@ def retriever(file):
 
 memory = ConversationBufferMemory(input_key="query", memory_key="history")
 def retriever_qa(query, T=0.5, file=file_1):
+    #retriever_obj =
     retrieved_docs = retriever(file).invoke(query)
     context = "\n".join([doc.page_content for doc in retrieved_docs])
     history = memory.load_memory_variables({}).get("history","")
+
     # Make sure history is a list and append the conversation as a new item in the list
-    prompt = f"History: {history_str}\nContext: {context}\nQuestion: {query}\nAnswer:"
+    prompt = f"History: {history}\nContext: {context}\nQuestion: {query}\nAnswer:"
     response = get_llm(prompt, T)
     answer = response.split("Answer:")[-1].strip()  # Extract only the answer
     #append the new conversation to the history
@@ -113,9 +115,6 @@ def retriever_qa(query, T=0.5, file=file_1):
 def home():
     return {"message": "FastAPI is running!"}
 
-#@app.options("/query")
-#async def options_query():
-#    return {"Allow": "POST"}
 #@app.head("/") # add HEAD Handler
 #async def head_root():
 #    return {"message":"HEAD request handled"}
@@ -124,7 +123,7 @@ def home():
 async def query(request: Request):
     data = await request.json()
     user_input = data["question"]
-    response = retriever_qa(user_input)
+    response = retriever_qa(user_input, T=0.4)
     return {"response": response}
 #@app.get("/")
 #async def query(request: Request):
