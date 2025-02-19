@@ -115,9 +115,9 @@ def retriever_qa(query, T=0.5, file=file_1):
 def home():
     return {"message": "FastAPI is running!"}
 
-#@app.head("/") # add HEAD Handler
-#async def head_root():
-#    return {"message":"HEAD request handled"}
+@app.head("/") # add HEAD Handler
+async def head_root():
+    return {"message":"HEAD request handled"}
 
 @app.post("/query")
 async def query(request: Request):
