@@ -25,6 +25,10 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+# Explicit port configuration for Render
+PORT = int(os.environ.get("PORT", 8000))
+HOST = "0.0.0.0"
+
 API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"  # Smaller model
 HEADERS = {"Authorization": f"Bearer {os.getenv('HF_TOKEN')}"}
 
@@ -161,5 +165,11 @@ async def query(request: Request):
         return {"error": str(e)}
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(
+        "server:app",
+        host=HOST,
+        port=PORT,
+        reload=False,
+        access_log=False,
+        timeout_keep_alive=60
+    )
