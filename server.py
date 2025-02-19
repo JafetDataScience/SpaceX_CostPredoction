@@ -33,14 +33,13 @@ API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Inst
 HEADERS = {"Authorization": f"Bearer {os.getenv('HF_TOKEN')}"}
 
 # Document paths
+#"https://portfolio-showcase-789.framer.ai/dataprojects", "https://portfolio-showcase-789.framer.ai/universeexpanssion",
 file_1 = [
     "https://portfolio-showcase-789.framer.ai/",
-    "https://portfolio-showcase-789.framer.ai/dataprojects",
     "https://portfolio-showcase-789.framer.ai/SpaceX",
     "https://portfolio-showcase-789.framer.ai/Laptops",
     "https://portfolio-showcase-789.framer.ai/rainoccurance",
-    "https://portfolio-showcase-789.framer.ai/universeexpanssion",
-    "Newsletter_Economy_1.pdf",  # Assuming PDFs are in documents folder
+    "Newsletter_Economy_1.pdf",
     "FL_solution_ecuation.pdf",
     "resume_QTRO_JILS.pdf"
 ]
@@ -107,8 +106,8 @@ def document_loader(files):
 ## Text splitter
 def text_splitter(data):
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=100,
+        chunk_size=950,
+        chunk_overlap=110,
         length_function=len,
     )
     return text_splitter.split_documents(data)
