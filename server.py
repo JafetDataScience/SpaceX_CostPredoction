@@ -36,9 +36,9 @@ HEADERS = {"Authorization": f"Bearer {os.getenv('HF_TOKEN')}"}
 #"https://portfolio-showcase-789.framer.ai/dataprojects", "https://portfolio-showcase-789.framer.ai/universeexpanssion",
 file_1 = [
     #"https://portfolio-showcase-789.framer.ai/",
-    #"https://portfolio-showcase-789.framer.ai/SpaceX",
-    #"https://portfolio-showcase-789.framer.ai/Laptops",
-    #"https://portfolio-showcase-789.framer.ai/rainoccurance",
+    "https://portfolio-showcase-789.framer.ai/SpaceX",
+    "https://portfolio-showcase-789.framer.ai/Laptops",
+    "https://portfolio-showcase-789.framer.ai/rainoccurance",
     "Newsletter_Economy_1.pdf",
     "FL_solution_ecuation.pdf",
     "resume_QTRO_JILS.pdf"
