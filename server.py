@@ -36,7 +36,7 @@ file_1 = [
     "https://portfolio-showcase-789.framer.ai/universeexpanssion",
     "Newsletter_Economy_1.pdf",
     "FL_solution_ecuation.pdf",
-    "resume.pdf"
+    "resume_QTRO_JILS.pdf"
     ]
 
 ## LLM using Hugging Face API
