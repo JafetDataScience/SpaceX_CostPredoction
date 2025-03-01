@@ -79,16 +79,16 @@ def update_graphs(period, time, investment_return, initial_investment, monthly_i
         data=go.Scatter(x=t_values/time_dict[period], y=M_values, mode='lines', name='M(t)'),
         layout=go.Layout(
          title='Total Investment Value Over Time (M(t))',
-         xaxis={'title': 'Time [Yrs]', "titlefont":{'size': 22, 'color': 'black', 'family': 'Arial'}},
-         yaxis={'title': 'M(t) [$]', "titlefont":{'size': 22, 'color': 'black', 'family': 'Arial'}}
+         xaxis={'title': 'Time [Yrs]', "title_font":{'size': 22, 'color': 'black', 'family': 'Arial'}},
+         yaxis={'title': 'M(t) [$]', "title_font":{'size': 22, 'color': 'black', 'family': 'Arial'}}
     ))
 
     investment_fig = go.Figure(
         data=go.Scatter(x=t_values/time_dict[period], y=DeltaM_values, mode='lines', name='DeltaM(t)'),
         layout=go.Layout(
             title='Interest Growth Over Time (ΣΔM)',
-            xaxis={'title': 'Time [Yrs]', "titlefont":{'size': 22, 'color': 'black', 'family': 'Arial'}},
-            yaxis={'title': 'ΣΔM [$]', "titlefont":{'size': 22, 'color': 'black', 'family': 'Arial'}}
+            xaxis={'title': 'Time [Yrs]', "title_font":{'size': 22, 'color': 'black', 'family': 'Arial'}},
+            yaxis={'title': 'ΣΔM [$]', "title_font":{'size': 22, 'color': 'black', 'family': 'Arial'}}
     ))
 
     return total_value_fig, investment_fig
